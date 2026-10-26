@@ -1,35 +1,28 @@
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(request) {
   try {
     const { url, quality = "192" } = await request.json();
 
-    // Validate URL
     if (!url || typeof url !== "string" || !url.trim()) {
       return Response.json(
-        {
-          success: false,
-          message: "Please enter a YouTube URL.",
-        },
+        { success: false, message: "Please enter a YouTube URL." },
         { status: 400 },
       );
     }
 
-    // Validate audio quality
-    if (!["128", "192", "320"].includes(quality)) {
+    if (!["128", "192", "320"].includes(String(quality))) {
       return Response.json(
-        {
-          success: false,
-          message: "Invalid MP3 quality selected.",
-        },
+        { success: false, message: "Invalid MP3 quality selected." },
         { status: 400 },
       );
     }
 
-    // Python FastAPI backend
     const backendUrl = (
-      process.env.CONVERTER_API_URL || "http://127.0.0.1:8000"
-    ).replace(/\/$/, "");
+      process.env.CONVERTER_API_URL || "https://ytconvertbackend.hostless.app"
+    ).replace(/\/+$/, "");
 
-    // Send request to Python backend
     const response = await fetch(`${backendUrl}/convert`, {
       method: "POST",
       headers: {
@@ -37,28 +30,26 @@ export async function POST(request) {
       },
       body: JSON.stringify({
         url: url.trim(),
-        quality,
+        quality: String(quality),
       }),
       cache: "no-store",
     });
 
-    // Handle backend errors
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
 
       return Response.json(
         {
           success: false,
-          message: error.detail || "MP3 conversion failed.",
+          message: error.message || error.detail || "MP3 conversion failed.",
         },
         { status: response.status },
       );
     }
 
-    // Return MP3 file
     const contentType = response.headers.get("content-type") || "";
 
-    if (!contentType.startsWith("audio/")) {
+    if (!contentType.toLowerCase().startsWith("audio/")) {
       return Response.json(
         {
           success: false,
