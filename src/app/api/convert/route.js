@@ -23,7 +23,7 @@ export async function POST(request) {
     }
 
     const backendUrl = (
-      process.env.CONVERTER_API_URL || "https://ytconvertbackend.hostless.app"
+      process.env.CONVERTER_API_URL || "http://localhost:8000"
     ).replace(/\/+$/, "");
 
     console.log("Connecting to backend:", backendUrl);
