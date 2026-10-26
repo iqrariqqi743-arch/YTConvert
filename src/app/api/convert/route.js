@@ -1,5 +1,3 @@
-export const runtime = "nodejs";
-
 export async function POST(request) {
   try {
     const { url, quality = "192" } = await request.json();
