@@ -1,5 +1,4 @@
 export const runtime = "nodejs";
-export const maxDuration = 60;
 
 export async function POST(request) {
   try {
@@ -7,14 +6,20 @@ export async function POST(request) {
 
     if (!url || typeof url !== "string" || !url.trim()) {
       return Response.json(
-        { success: false, message: "Please enter a YouTube URL." },
+        {
+          success: false,
+          message: "Please enter a YouTube URL.",
+        },
         { status: 400 },
       );
     }
 
     if (!["128", "192", "320"].includes(String(quality))) {
       return Response.json(
-        { success: false, message: "Invalid MP3 quality selected." },
+        {
+          success: false,
+          message: "Invalid MP3 quality selected.",
+        },
         { status: 400 },
       );
     }
@@ -22,6 +27,8 @@ export async function POST(request) {
     const backendUrl = (
       process.env.CONVERTER_API_URL || "https://ytconvertbackend.hostless.app"
     ).replace(/\/+$/, "");
+
+    console.log("Connecting to backend:", backendUrl);
 
     const response = await fetch(`${backendUrl}/convert`, {
       method: "POST",
@@ -38,10 +45,15 @@ export async function POST(request) {
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
 
+      console.error("Backend error:", response.status, error);
+
       return Response.json(
         {
           success: false,
-          message: error.message || error.detail || "MP3 conversion failed.",
+          message:
+            error.message ||
+            error.detail ||
+            `Backend returned HTTP ${response.status}`,
         },
         { status: response.status },
       );
@@ -50,6 +62,8 @@ export async function POST(request) {
     const contentType = response.headers.get("content-type") || "";
 
     if (!contentType.toLowerCase().startsWith("audio/")) {
+      console.error("Unexpected content type:", contentType);
+
       return Response.json(
         {
           success: false,
@@ -73,7 +87,10 @@ export async function POST(request) {
     return Response.json(
       {
         success: false,
-        message: "Cannot connect to conversion backend.",
+        message:
+          error instanceof Error
+            ? `Backend connection failed: ${error.message}`
+            : "Cannot connect to conversion backend.",
       },
       { status: 502 },
     );
