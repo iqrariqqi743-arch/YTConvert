@@ -23,7 +23,8 @@ export async function POST(request) {
     }
 
     const backendUrl = (
-      process.env.CONVERTER_API_URL || "http://localhost:8000"
+      process.env.CONVERTER_API_URL ||
+      "https://meters-commerce-fuel-casting.trycloudflare.com/"
     ).replace(/\/+$/, "");
 
     console.log("Connecting to backend:", backendUrl);
