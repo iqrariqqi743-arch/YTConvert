@@ -29,8 +29,7 @@ import {
 const features = [
   {
     icon: Zap,
-    title:
-      "Easy Conversion bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    title: "Easy Conversion",
     description:
       "Convert supported YouTube videos into MP3 audio with a simple and intuitive process.",
   },
