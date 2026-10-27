@@ -1,10 +1,8 @@
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 export async function POST(request) {
   try {
     const { url, quality = "192" } = await request.json();
 
+    // Validate YouTube URL
     if (!url || typeof url !== "string" || !url.trim()) {
       return Response.json(
         {
@@ -15,6 +13,7 @@ export async function POST(request) {
       );
     }
 
+    // Validate MP3 quality
     if (!["128", "192", "320"].includes(String(quality))) {
       return Response.json(
         {
@@ -25,6 +24,7 @@ export async function POST(request) {
       );
     }
 
+    // Cloudflare Tunnel backend URL
     const backendUrl = (
       process.env.CONVERTER_API_URL ||
       "https://lowest-advantages-strap-partly.trycloudflare.com"
@@ -34,6 +34,7 @@ export async function POST(request) {
 
     console.log("Connecting to backend:", backendUrl);
 
+    // Send conversion request to Node.js backend
     const response = await fetch(`${backendUrl}/convert`, {
       method: "POST",
       headers: {
@@ -46,6 +47,7 @@ export async function POST(request) {
       cache: "no-store",
     });
 
+    // Handle backend errors
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
 
@@ -63,6 +65,7 @@ export async function POST(request) {
       );
     }
 
+    // Validate audio response
     const contentType = response.headers.get("content-type") || "";
 
     if (!contentType.toLowerCase().startsWith("audio/")) {
@@ -77,6 +80,7 @@ export async function POST(request) {
       );
     }
 
+    // Stream MP3 to frontend
     return new Response(response.body, {
       status: 200,
       headers: {
