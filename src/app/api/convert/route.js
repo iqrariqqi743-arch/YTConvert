@@ -1,3 +1,6 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(request) {
   try {
     const { url, quality = "192" } = await request.json();
@@ -25,7 +28,9 @@ export async function POST(request) {
     const backendUrl = (
       process.env.CONVERTER_API_URL ||
       "https://lowest-advantages-strap-partly.trycloudflare.com"
-    ).replace(/\/+$/, "");
+    )
+      .trim()
+      .replace(/\/+$/, "");
 
     console.log("Connecting to backend:", backendUrl);
 
